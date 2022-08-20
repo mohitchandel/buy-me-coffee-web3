@@ -48,7 +48,7 @@ export const DonationForm = () => {
         icon: "success",
         title: "Donated successfully",
         html: `Something went wrong`,
-      }).then(router.push("/"));
+      })
       setIsLoading(false);
     }
   };
