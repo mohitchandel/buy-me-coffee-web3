@@ -16,6 +16,7 @@ contract Coffee {
         string message;
         uint256 amount;
         address senderAddress;
+        uint time;
     }
     mapping(uint256 => Coffees) private coffees;
     mapping(address => Coffees) private coffeeSender;
@@ -42,14 +43,16 @@ contract Coffee {
                 _name,
                 _message,
                 msg.value,
-                _sender
+                _sender,
+                block.timestamp
             );
             coffeeSender[_sender] = Coffees(
                 itemId,
                 _name,
                 _message,
                 msg.value,
-                _sender
+                _sender,
+                block.timestamp
             );
         } else {
             itemId = coffeeSender[_sender].id;

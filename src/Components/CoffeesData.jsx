@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Coffee from "../artifacts/contracts/Coffee.sol/Coffee.json";
+import { ethers } from "ethers";
 
 export const CoffeesData = () => {
+  const [data, setData] = useState([]);
   const divStyle = {
     background: "#5046e5",
     color: "#fff",
@@ -8,12 +11,32 @@ export const CoffeesData = () => {
     margin: "10px 10px 0 0",
   };
 
-  const ar = [1, 2, 3, 4];
+  const getData = async () => {
+    const provider = new ethers.providers.JsonRpcProvider(
+      `https://polygon-mumbai.g.alchemy.com/v2/${process.env.REACT_APP_ALCHEMY_KEY}`
+    );
+    const contract = new ethers.Contract(
+      process.env.REACT_APP_CONTRACT_ADDRESS,
+      Coffee.abi,
+      provider
+    );
+    const coffees = await contract.getCoffees();
+    setData(coffees);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => getData(), 5000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <>
       <div className="pt-4 border-t-2">
-        <h2 className="" style={{fontSize: '20px'}}><strong>Recent Donations :</strong></h2>
+        <h2 className="" style={{ fontSize: "20px" }}>
+          <strong>Some Recent Donations :</strong>
+        </h2>
         <div className="p-4">
           <div className="grid grid-cols-3 gap-4">
             <div className="flex items-center justify-start">
@@ -23,23 +46,34 @@ export const CoffeesData = () => {
               <strong>Message</strong>
             </div>
             <div className="flex items-center justify-end">
-              <strong><img src="matic.png" width={80}/></strong>
+              <strong>
+                <img src="matic.png" width={80} />
+              </strong>
             </div>
           </div>
         </div>
-        {ar.map((i) => {
-          return (
-            <div className="p-4" style={divStyle}>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="flex items-center justify-start">Jacl</div>
-                <div className="flex items-center justify-center">
-                  You are awesome !
+        {[...data]
+          .slice(0, 5)
+          .reverse()
+          .map((items, i) =>
+            items.name !== "" ? (
+              <div key={i} className="p-4" style={divStyle}>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex items-center justify-start">
+                    {items.name}
+                  </div>
+                  <div className="flex items-center justify-center">
+                    {items.message}
+                  </div>
+                  <div className="flex items-center justify-end">
+                    {ethers.utils.formatEther(items.amount.toString())} Matic
+                  </div>
                 </div>
-                <div className="flex items-center justify-end">10 Matic</div>
               </div>
-            </div>
-          );
-        })}
+            ) : (
+              ""
+            )
+          )}
       </div>
     </>
   );

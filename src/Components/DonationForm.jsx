@@ -1,8 +1,57 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAccount } from "wagmi";
+import { ethers } from "ethers";
+import Coffee from "../artifacts/contracts/Coffee.sol/Coffee.json";
+import Swal from "sweetalert2";
 
 export const DonationForm = () => {
   const { address, isConnected } = useAccount();
+  const [name, setName] = useState();
+  const [message, setMessage] = useState();
+  const [amount, setAmount] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const buyCoffee = async () => {
+    setIsLoading(true);
+    if (!amount || !name || !message) {
+      if (amount < 0.1) {
+        alert("please enter amount greater that 0.1");
+        setIsLoading(false);
+        return;
+      }
+      alert("please fill all the fields");
+      setIsLoading(false);
+      return;
+    }
+    const maticAmount = ethers.utils.parseUnits(amount, "ether");
+    console.log(maticAmount);
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        process.env.REACT_APP_CONTRACT_ADDRESS,
+        Coffee.abi,
+        signer
+      );
+      const tx = await contract.buyCoffee(name, message, {
+        value: maticAmount,
+      });
+      await tx.wait();
+      Swal.fire({
+        icon: "success",
+        title: "Donated successfully",
+        html: `<a href="https://mumbai.polygonscan.com//tx/${tx.hash}">View on explorer</a>`,
+      }).then(window.location.reload(false));
+      setIsLoading(false);
+    } catch (error) {
+      Swal.fire({
+        icon: "success",
+        title: "Donated successfully",
+        html: `Something went wrong`,
+      }).then(router.push("/"));
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -19,7 +68,7 @@ export const DonationForm = () => {
               Donate to Mohit
             </h2>
           </div>
-          <form className="mt-8 space-y-6" action="#" method="POST">
+          <div className="mt-8 space-y-6">
             <input type="hidden" name="remember" defaultValue="true" />
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
@@ -27,13 +76,12 @@ export const DonationForm = () => {
                   Your Name
                 </label>
                 <input
-                  id="name"
-                  name="text"
                   type="text"
                   autoComplete="text"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Your Name"
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
               <div>
@@ -41,13 +89,12 @@ export const DonationForm = () => {
                   Your Message
                 </label>
                 <input
-                  id="message"
-                  name="message"
                   type="text"
                   autoComplete="current-message"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Your Message in one line"
+                  onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
               <div>
@@ -55,13 +102,12 @@ export const DonationForm = () => {
                   Amount in MATIC
                 </label>
                 <input
-                  id="amount"
-                  name="amount"
                   type="number"
                   autoComplete="amount"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Amount (In MATIC)"
+                  onChange={(e) => setAmount(e.target.value)}
                 />
               </div>
             </div>
@@ -69,11 +115,12 @@ export const DonationForm = () => {
             <div>
               {isConnected ? (
                 <button
-                  disabled={isConnected}
-                  type="submit"
+                  onClick={buyCoffee}
+                  disabled={isLoading}
+                  type="button"
                   className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  Donate
+                  {isLoading ? "Loading..." : "Donate"}
                 </button>
               ) : (
                 <button
@@ -85,7 +132,7 @@ export const DonationForm = () => {
                 </button>
               )}
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </>
