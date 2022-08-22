@@ -52,9 +52,6 @@ export const CoffeesData = () => {
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-center">
-          {data.length < 1 ? <p className="mt-10">Please Wait Loading Data...</p> : ""}
-        </div>
         {[...data]
           .slice(0, 5)
           .reverse()

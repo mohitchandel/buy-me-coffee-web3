@@ -63,7 +63,7 @@ export const BasicInfo = () => {
   return (
     <>
       <div className="flex items-center justify-start pt-10 pb-3">
-        <h2 style={{ fontSize: "26px" }}>Total Donation Yet : {total ? total : 'Fetching...'} MATIC</h2>
+        <h2 style={{ fontSize: "26px" }}>Total Donation Yet : {total} MATIC</h2>
       </div>
       <div className="">
         <label htmlFor="message">Get Donation Data For Address</label>
