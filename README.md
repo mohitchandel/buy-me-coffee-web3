@@ -13,12 +13,12 @@ we can send some MATIC as a donation to the site admin to support them.
 
 ## Sections on the Website
 1. Form section
-    - user can donate Matic to the site admin/owner
+    - user can donate Matic to the site admin/owner.
 2. Info Section
-    - user can get the data for total matic donated
-    - user can get the of perticular address
+    - user can get the data for total matic donated.
+    - user can get the data (name and amount) of a perticular address.
 3. Recent Donations
-    - user can see some of the transactions/donations
+    - user can see some of the transactions/donations.
 
 
 ## How to run the dApp
